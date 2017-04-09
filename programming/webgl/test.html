@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Three.js test</title>
+		<meta charset="utf-8">
+		<style>
+			#canvas-frame{
+				width: 512px;
+				height: 512px;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>すっごーい！</h1>
+		<div id="canvas-frame"></div>
+		これはテストである。
+
+		<script src="../src/three.min.js"></script>
+		<script>
+			window.addEventListener("load", function(){
+				threeStart();
+			});
+
+			function threeStart(){
+				initThree();
+				initCamera();
+				initLight();
+				initObject();
+//				draw();
+				loop();
+			}
+
+			var renderer, scene, canvas_frame;
+			function initThree(){
+				canvas_frame = document.getElementById('canvas-frame');
+				renderer = new THREE.WebGLRenderer({ antialias: true });
+				if(!renderer) alert('Fail to initialize Three.js');
+				renderer.setSize(canvas_frame.clientWidth, canvas_frame.clientHeight);
+				canvas_frame.appendChild(renderer.domElement);
+				renderer.setClearColor(0xEEEEEE, 1.0);
+				scene = new THREE.Scene();
+			}
+
+			var camera;
+			function initCamera(){
+				camera = new THREE.PerspectiveCamera(45, canvas_frame.clientWidth / canvas_frame.clientHeight, 1, 10000);
+				camera.position.set(50, 50, 100);
+				camera.up.set(0, 0, 1);
+				camera.lookAt({ x: 0, y: 0, z: 0 });
+			}
+
+			var axis;
+			var cubes=[];
+			function initObject(){
+				axis = new THREE.AxisHelper(50);
+				scene.add(axis);
+				axis.position.set(0, 0, 0);
+
+				var geometry = new THREE.CubeGeometry(20, 20, 20);
+				var material = new THREE.MeshLambertMaterial({ color: 0xFF2222 });
+				cubes[0] = new THREE.Mesh(geometry, material);
+				scene.add(cubes[0]);
+				cubes[0].position.set(0, -30, 0);
+
+				var material = new THREE.MeshLambertMaterial({ color: 0x22FF22 });
+				cubes[1] = new THREE.Mesh(geometry, material);
+				scene.add(cubes[1]);
+				cubes[1].position.set(0, 0, 0);
+
+				var material = new THREE.MeshLambertMaterial({ color: 0x2222FF });
+				cubes[2] = new THREE.Mesh(geometry, material);
+				scene.add(cubes[2]);
+				cubes[2].position.set(0, 30, 0);
+
+				cubes[1].rotation.set(Math.PI/4, 0, 0);
+				cubes[2].useQuaternion = true;
+				var axis = new THREE.Vector3(1, 1, 1).normalize();
+				var angle = Math.PI / 4;
+				cubes[2].quaternion.copy(
+					new THREE.Quaternion().setFromAxisAngle(axis, angle)
+				);
+			}
+
+			function draw(){
+				renderer.clear();
+				renderer.render(scene, camera);
+			}
+
+			var step = 0;
+			function loop(){
+				step++;
+
+				cubes[0].rotation.set(step / 100, 0, 0);
+				cubes[1].rotation.set(0, step / 100, 0);
+				cubes[2].rotation.set(0, 0, step / 100);
+
+				directional_light.position.set(
+					100 * Math.cos(step / 50),
+					100 * Math.sin(step / 50),
+					100
+				);
+
+				camera.position.set(
+					100 * Math.cos(step / 200),
+					100 * Math.sin(step / 200),
+					100
+				);
+				camera.up.set(0, 0, 1);
+				camera.lookAt({ x: 0, y: 0, z: 0 });
+
+				renderer.clear();
+				renderer.render(scene, camera);
+				requestAnimationFrame(loop);
+			}
+
+			var directional_light;
+			function initLight(){
+				directional_light = new THREE.DirectionalLight(0xFFFFFF, 1.0);
+				directional_light.position.set(50, 20, 100);
+				scene.add(directional_light);
+			}
+		</script>
+	</body>
+</html>
